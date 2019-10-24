@@ -41,6 +41,7 @@ class BorrowList:
         with open(self.filename, 'w', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             for b in self.store:
+                print(b.data.values())
                 csv_writer.writerow(b.data.values())
 
     def add(self, borrow):
@@ -55,6 +56,13 @@ class BorrowList:
     def len(self):
         """Return the number of objects in the store"""
         return len(self.store)
+
+    def getBorrowIdByDesc(self, description):
+        """Return a borrow with the right description if exist, else None"""
+        for i, b in enumerate(self.store):
+            if b.data["description"] == description:
+                return i
+        return None
 
 
 class Borrow:
@@ -83,15 +91,16 @@ class Borrow:
 
     def isReturned(self):
         """Return whether the borrow is returned"""
-        return self.state == "RETURNED"
+        return self.data["state"] == "RETURNED"
 
     def isBorrowed(self):
         """Return whether the borrow is borrowed"""
-        return self.state == "AWAY"
+        return self.data["state"] == "AWAY"
 
     def setReturned(self):
         """Set the borrow as returned"""
-        self.state = "RETURNED"
+        self.data["state"] = "RETURNED"
+        self.data["returned_date"] = time.time()
 
 
 if __name__ == '__main__':
