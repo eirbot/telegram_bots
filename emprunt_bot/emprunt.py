@@ -16,6 +16,7 @@ VALID_STATES = [
     "AWAY",
     "RETURNED"
 ]
+GLOBAL_ID = 0  # id of the next borrow to be created
 
 
 class BorrowList:
@@ -46,7 +47,16 @@ class BorrowList:
 
     def add(self, borrow):
         """Add an entry to the BorrowList"""
+        global GLOBAL_ID
+        GLOBAL_ID += 1
         self.store.append(borrow)
+
+    def add_new(self, description, name):
+        """Add an entry to the BorrowList"""
+        global GLOBAL_ID
+        new_borrow = Borrow(GLOBAL_ID, description, name)
+        GLOBAL_ID += 1
+        self.store.append(new_borrow)
         self.save()
 
     def borrowed_items(self):
@@ -68,7 +78,7 @@ class BorrowList:
 class Borrow:
     "A only borrow"
 
-    def __init__(self, description=None, borrower_name=None,
+    def __init__(self, identifiant=None, description=None, borrower_name=None,
                  borrow_date=time.time(), state=None, return_date=None):
         if state:
             if state not in VALID_STATES:
@@ -78,6 +88,7 @@ class Borrow:
             state = "AWAY"
 
         self.data = {
+            "id": identifiant,
             "description": description,
             "borrower_name": borrower_name,
             "borrow_date": borrow_date,
@@ -109,6 +120,7 @@ if __name__ == '__main__':
     first_borrow = Borrow("Un tournevis", "Alban Chauvel")
     print("Created a borrow : {}".format(first_borrow))
     Store.add(first_borrow)
+    nb_items = Store.len()
     print("The BorrowList now contain {} item{}.".format(
         Store.len(),
         "" if Store.len() <= 1 else "s"))

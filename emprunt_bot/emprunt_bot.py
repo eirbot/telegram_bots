@@ -55,6 +55,13 @@ def add_borrow(update, context):
         CURRENT_BORROW["description"] = splitted_args[0]
         CURRENT_BORROW["borrower"] = splitted_args[1]
         add_borrow_commit()
+        update.message.reply_text(
+            'Noted ! `{}` Borrowed {}.'.format(
+                CURRENT_BORROW["borrower"],
+                CURRENT_BORROW["description"]),
+            reply_markup=ReplyKeyboardRemove(),
+            parse_mode='Markdown'
+        )
         return ConversationHandler.END
         
     else:
@@ -95,15 +102,20 @@ def add_borrow_name(update, context):
 
 
 def add_borrow_commit():
-    new_borrow = Borrow(*CURRENT_BORROW.values())
-    Store.add(new_borrow)
+    Store.add_new(*CURRENT_BORROW.values())
 
 
 def list_borrow(update, context):
-    text = "The BorrowList contains {} items :".format(
-        len(Store.borrowed_items()))
+    nb_borrowed = len(Store.borrowed_items())
+    nb_items = Store.len()
+    if nb_items == 0:
+        text = "The BorrowList is **empty**."
+    else:
+        text = "The BorrowList contains {} item{} in which {} are still borrowed.".format(
+            nb_items, "s" if nb_items > 1 else "", nb_borrowed)
     for b in Store.borrowed_items():
-        text += "\n - `{}` borrowed by `{}`".format(
+        text += "\n {}. `{}` borrowed by `{}`".format(
+            b.data["id"],
             b.data["description"],
             b.data["borrower_name"])
     context.bot.send_message(
@@ -115,7 +127,10 @@ def list_borrow(update, context):
 
 def returned_borrow(update, context):
     returned_object = " ".join(update.message.text.split(" ")[1:])
-    id = Store.getBorrowIdByDesc(returned_object)
+    if returned_object.isdigit():
+        id = int(returned_object)
+    else:
+        id = Store.getBorrowIdByDesc(returned_object)
 
     if not id:
         context.bot.send_message(
@@ -125,13 +140,21 @@ def returned_borrow(update, context):
         )
 
     else:
-        Store.store[id].setReturned()
-        Store.save()
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="`{}` is back !".format(returned_object),
-            parse_mode='Markdown'
-        )
+        if id < Store.len():
+            Store.store[id].setReturned()
+            Store.save()
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="`{}` is back !".format(
+                    Store.store[id].data["description"]),
+                parse_mode='markdown'
+            )
+        else:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="The id `{}` has not been found !".format(id),
+                parse_mode='markdown'
+            )
 
 
 # Adding bot commands
