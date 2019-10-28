@@ -161,12 +161,17 @@ def help_command(update, context):
 
 def returned_borrow(update, context):
     returned_object = " ".join(update.message.text.split(" ")[1:])
+    id = None
     if returned_object.isdigit():
         id = int(returned_object)
     else:
-        id = Store.getBorrowIdByDesc(returned_object)
+        ids = Store.getBorrowIdsByDesc(returned_object)
+        if len(ids) > 1:
+            return returned_duplicate(update, context, ids, returned_object)
+        elif ids:
+            id = ids[0]
 
-    if not id:
+    if id is None:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="`{}` has not been found".format(returned_object),
@@ -190,7 +195,21 @@ def returned_borrow(update, context):
                 parse_mode='markdown'
             )
 
+def returned_duplicate(update, context, ids, returned_object):
+    """Ask the user to chose between ids"""
 
+    text = "`{}` has been found in more than one borrow. Please use this syntax to distinguish them:\n `/r <id>`\n\n".format(returned_object)
+
+    for b in Store.borrowed_items():
+        if b.data["description"] == returned_object:
+            text += "\n {}. `{}` borrowed by `{}`".format(
+                b.data["id"],
+                b.data["description"],
+                b.data["borrower_name"])
+    context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=text,
+            parse_mode='Markdown')
 # Adding bot commands
 dispatcher = bot_updater.dispatcher
 dispatcher.add_handler(

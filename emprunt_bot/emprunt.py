@@ -70,12 +70,9 @@ class BorrowList:
         """Return the number of objects in the store"""
         return len(self.store)
 
-    def getBorrowIdByDesc(self, description):
+    def getBorrowIdsByDesc(self, description):
         """Return a borrow with the right description if exist, else None"""
-        for i, b in enumerate(self.store):
-            if b.data["description"] == description:
-                return i
-        return None
+        return [ b for b in self.store if b.data["description"] == description ]
 
 
 class Borrow:
