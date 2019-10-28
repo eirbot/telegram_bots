@@ -51,10 +51,13 @@ class BorrowList:
         GLOBAL_ID += 1
         self.store.append(borrow)
 
-    def add_new(self, description, name):
+    def add_new(self, description, name, user=None):
         """Add an entry to the BorrowList"""
         global GLOBAL_ID
-        new_borrow = Borrow(GLOBAL_ID, description, name)
+        new_borrow = Borrow(identifiant=GLOBAL_ID,
+                            description=description,
+                            borrower_name=name,
+                            user=user)
         GLOBAL_ID += 1
         self.store.append(new_borrow)
         self.save()
@@ -79,7 +82,7 @@ class Borrow:
     "A only borrow"
 
     def __init__(self, identifiant=None, description=None, borrower_name=None,
-                 borrow_date=time.time(), state=None, return_date=None):
+                 borrow_date=time.time(), state=None, return_date=None, user=None):
         if state:
             if state not in VALID_STATES:
                 raise TypeError("State should be one of {}".format(
@@ -94,6 +97,7 @@ class Borrow:
             "borrow_date": borrow_date,
             "state": state,
             "returned_date": return_date,
+            "user": user,
         }
 
     def __repr__(self):

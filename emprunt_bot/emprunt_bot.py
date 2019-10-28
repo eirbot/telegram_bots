@@ -55,7 +55,8 @@ log.info("Bot updated")
 DESCRIPTION, NAME, COMMIT = range(3)
 DEFAULT_BORROW = {
     "description": None,
-    "borrower": None
+    "borrower": None,
+    "user": None
 }
 CURRENT_BORROW = DEFAULT_BORROW
 
@@ -75,8 +76,10 @@ def add_borrow(update, context):
     splitted_args = args.split(" by ")
     print(splitted_args)
     if len(splitted_args) == 2:  # All has been added
+        user = update.message.from_user
         CURRENT_BORROW["description"] = splitted_args[0]
         CURRENT_BORROW["borrower"] = splitted_args[1]
+        CURRENT_BORROW["user"] = "{} <{}> ({})".format(user.full_name, user.username, user.id)
         add_borrow_commit()
         update.message.reply_text(
             'Noted ! `{}` Borrowed {}.'.format(
@@ -120,6 +123,8 @@ def add_borrow_name(update, context):
         reply_markup=ReplyKeyboardRemove(),
         parse_mode='Markdown'
     )
+    user = update.message.from_user
+    CURRENT_BORROW["user"] = "{} <{}> ({})".format(user.full_name, user.username, user.id)
     add_borrow_commit()
     return ConversationHandler.END
 
