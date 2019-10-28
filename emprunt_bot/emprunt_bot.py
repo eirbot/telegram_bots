@@ -68,13 +68,11 @@ def add_borrow(update, context):
     CURRENT_BORROW = DEFAULT_BORROW
 
     args = " ".join(update.message.text.split(" ")[1:])
-    print(args)
     if not args:  # nothing added, need to ask
         update.message.reply_text("What's the name of the borrowed object ?")
         return DESCRIPTION
 
     splitted_args = args.split(" by ")
-    print(splitted_args)
     if len(splitted_args) == 2:  # All has been added
         user = update.message.from_user
         CURRENT_BORROW["description"] = splitted_args[0]
@@ -184,7 +182,8 @@ def returned_borrow(update, context):
             Store.save()
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="`{}` is back !".format(
+                text="`{}` returned `{}` !".format(
+                    Store.store[id].data["borrower_name"],
                     Store.store[id].data["description"]),
                 parse_mode='markdown'
             )
