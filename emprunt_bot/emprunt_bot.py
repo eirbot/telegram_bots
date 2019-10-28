@@ -203,8 +203,11 @@ dispatcher.add_handler(
     )
                        )
 dispatcher.add_handler(CommandHandler('list', list_borrow))
+dispatcher.add_handler(CommandHandler('l', list_borrow))
 dispatcher.add_handler(CommandHandler('returned', returned_borrow))
+dispatcher.add_handler(CommandHandler('r', returned_borrow))
 dispatcher.add_handler(CommandHandler('help', help_command))
+dispatcher.add_handler(CommandHandler('h', help_command))
 
 Store = BorrowList()
 
