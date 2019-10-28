@@ -20,6 +20,29 @@ from telegram import (
 import os
 import logging
 
+HELP_TEXT = """
+Bonjour, je suis `Emprunt'eirbot`.
+
+Voici les commandes disponibles :
+
+Pour **ajouter un élément** :
+/add
+/add <something> `by` <someone>
+
+Pour **supprimer un élément** :
+/returned <id>
+/returned <something>
+/r
+
+Pour **lister les éléments** :
+/list
+/l
+
+Pour **obtenir de l'aide** :
+/help
+/h
+"""
+
 # Set up logging
 logging.basicConfig(
     format='%(asctime)s %(levelname)s - %(message)s',
@@ -124,6 +147,12 @@ def list_borrow(update, context):
         parse_mode='Markdown'
     )
 
+def help_command(update, context):
+    """Display help for commands"""
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=HELP_TEXT,
+        parse_mode='Markdown')
 
 def returned_borrow(update, context):
     returned_object = " ".join(update.message.text.split(" ")[1:])
@@ -175,6 +204,7 @@ dispatcher.add_handler(
                        )
 dispatcher.add_handler(CommandHandler('list', list_borrow))
 dispatcher.add_handler(CommandHandler('returned', returned_borrow))
+dispatcher.add_handler(CommandHandler('help', help_command))
 
 Store = BorrowList()
 
